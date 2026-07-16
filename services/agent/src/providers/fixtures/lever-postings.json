@@ -1,0 +1,25 @@
+[
+  {
+    "id": "lever-posting-1",
+    "text": "Backend Engineer",
+    "hostedUrl": "https://jobs.lever.co/globex/lever-posting-1",
+    "createdAt": 1720000000000,
+    "descriptionPlain": "Work on distributed systems with Go and PostgreSQL. Experience with AWS is a plus.",
+    "categories": {
+      "location": "Remote",
+      "team": "Platform",
+      "commitment": "Full-time"
+    }
+  },
+  {
+    "id": "lever-posting-2",
+    "text": "Data Analyst",
+    "hostedUrl": "https://jobs.lever.co/globex/lever-posting-2",
+    "createdAt": 1720100000000,
+    "description": "<p>SQL and dashboards</p>",
+    "categories": {
+      "location": "Austin, TX",
+      "department": "Data"
+    }
+  }
+]

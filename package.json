@@ -1,0 +1,27 @@
+{
+  "name": "opportun-ai-t",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Opportun-AI-t — autonomous career agent challenge MVP",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*",
+    "infra"
+  ],
+  "scripts": {
+    "build": "npm run build -w @opportun-ai-t/core && npm run build --workspaces --if-present",
+    "typecheck": "npm run build -w @opportun-ai-t/core && npm run typecheck --workspaces --if-present",
+    "test": "npm run test -w @opportun-ai-t/core && npm run test -w @opportun-ai-t/agent",
+    "agent:dry-run": "npm run dry-run -w @opportun-ai-t/agent",
+    "synth": "npm run synth -w infra",
+    "dev:web": "npm run dev -w @opportun-ai-t/web"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "sharp@0.34.5": true
+  }
+}

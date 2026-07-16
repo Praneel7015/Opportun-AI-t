@@ -1,0 +1,24 @@
+{
+  "jobs": [
+    {
+      "id": 4001,
+      "title": "Senior Software Engineer",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/4001",
+      "company_name": "Acme Corp",
+      "content": "<p>Build TypeScript services on AWS. Strong Node.js and DynamoDB experience preferred.</p>",
+      "updated_at": "2026-07-10T10:00:00.000Z",
+      "location": { "name": "Remote - US" },
+      "departments": [{ "name": "Engineering" }]
+    },
+    {
+      "id": 4002,
+      "title": "Product Designer",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/4002",
+      "company_name": "Acme Corp",
+      "content": "<p>Design delightful product experiences.</p>",
+      "updated_at": "2026-07-11T10:00:00.000Z",
+      "location": { "name": "New York, NY" },
+      "departments": [{ "name": "Design" }]
+    }
+  ]
+}

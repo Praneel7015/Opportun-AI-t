@@ -1,0 +1,27 @@
+{
+  "name": "@opportun-ai-t/agent",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/handler.js",
+  "scripts": {
+    "build": "esbuild src/handler.ts --bundle --platform=node --target=node20 --outfile=dist/handler.js --external:@aws-sdk/* --sourcemap",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test \"src/**/*.test.ts\"",
+    "dry-run": "tsx scripts/run-local.ts",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.758.0",
+    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/client-ses": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
+    "@opportun-ai-t/core": "*"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
+    "@types/node": "^22.13.10",
+    "esbuild": "^0.25.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

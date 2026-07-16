@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build / output
+dist/
+build/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+cdk.out/
+.cdk.staging/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs & coverage
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+.nyc_output/
+
+# IDE / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Test / temp
+tmp/
+temp/
+*.tmp
+
+# AWS / CDK
+*.js.map
+!jest.config.js
+
+# Amplify
+amplify/
+.amplify/
+
+# Misc
+*.pem
+.cache/
+
+# Local debug / one-off AWS CLI payloads
+del-key.json
+eav-*.json
