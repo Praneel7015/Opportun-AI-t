@@ -22,6 +22,7 @@ export const UpdateProfileInputSchema = z.object({
   skills: z.array(z.string()).optional(),
   locations: z.array(z.string()).optional(),
   remoteOk: z.boolean().optional(),
+  seniority: z.array(z.string()).optional(),
   staleFollowUpDays: z.number().int().min(1).max(90).optional(),
   timezone: z.string().optional(),
 });

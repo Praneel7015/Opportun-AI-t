@@ -5,7 +5,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { saveOnboardingProfileAction } from "@/lib/actions/mutations";
 
@@ -16,18 +15,16 @@ const step1Schema = z.object({
   email: z.string().email("Enter a valid email address"),
 });
 
-const step2Schema = z.object({
-  targetRoles: z.string().optional(),
-  locations: z.string().optional(),
-  workStyle: z.enum(["remote", "hybrid", "onsite"]),
-  seniority: z.array(z.string()).min(1, "Select at least one"),
-  skills: z.string().optional(),
-});
-
 // ---------- types ----------
 
 type WorkStyle = "remote" | "hybrid" | "onsite";
 type Seniority = "internship" | "graduate" | "full-time";
+
+interface WatchlistEntry {
+  provider: "greenhouse" | "lever";
+  boardOrSlug: string;
+  displayName: string;
+}
 
 interface FormState {
   displayName: string;
@@ -38,6 +35,7 @@ interface FormState {
   workStyle: WorkStyle;
   seniority: Seniority[];
   skills: string;
+  watchlist: WatchlistEntry[];
 }
 
 const SENIORITY_OPTIONS: { value: Seniority; label: string }[] = [
@@ -52,11 +50,26 @@ const WORK_STYLE_OPTIONS: { value: WorkStyle; label: string }[] = [
   { value: "onsite", label: "On-site" },
 ];
 
+const SUGGESTED_BOARDS: { provider: "greenhouse" | "lever"; boardOrSlug: string; displayName: string }[] = [
+  { provider: "greenhouse", boardOrSlug: "stripe", displayName: "Stripe" },
+  { provider: "greenhouse", boardOrSlug: "notion", displayName: "Notion" },
+  { provider: "lever", boardOrSlug: "vercel", displayName: "Vercel" },
+  { provider: "greenhouse", boardOrSlug: "figma", displayName: "Figma" },
+  { provider: "greenhouse", boardOrSlug: "airbnb", displayName: "Airbnb" },
+  { provider: "lever", boardOrSlug: "linear", displayName: "Linear" },
+  { provider: "greenhouse", boardOrSlug: "github", displayName: "GitHub" },
+  { provider: "lever", boardOrSlug: "netlify", displayName: "Netlify" },
+];
+
 function splitTags(raw: string): string[] {
   return raw
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+function watchlistKey(e: WatchlistEntry) {
+  return `${e.provider}:${e.boardOrSlug}`;
 }
 
 // ---------- step indicators ----------
@@ -140,12 +153,14 @@ export function OnboardingForm() {
     workStyle: "remote",
     seniority: [],
     skills: "",
+    watchlist: [],
   });
+  const [newBoard, setNewBoard] = useState({ provider: "greenhouse" as "greenhouse" | "lever", boardOrSlug: "", displayName: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const TOTAL_STEPS = 3;
+  const TOTAL_STEPS = 4;
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -167,6 +182,30 @@ export function OnboardingForm() {
       delete next2["seniority"];
       return next2;
     });
+  }
+
+  function toggleSuggestedBoard(entry: WatchlistEntry) {
+    const key = watchlistKey(entry);
+    const exists = form.watchlist.some((w) => watchlistKey(w) === key);
+    if (exists) {
+      set("watchlist", form.watchlist.filter((w) => watchlistKey(w) !== key));
+    } else {
+      set("watchlist", [...form.watchlist, entry]);
+    }
+  }
+
+  function addCustomBoard() {
+    if (!newBoard.boardOrSlug.trim() || !newBoard.displayName.trim()) return;
+    const entry: WatchlistEntry = {
+      provider: newBoard.provider,
+      boardOrSlug: newBoard.boardOrSlug.toLowerCase().trim(),
+      displayName: newBoard.displayName.trim(),
+    };
+    const key = watchlistKey(entry);
+    if (!form.watchlist.some((w) => watchlistKey(w) === key)) {
+      set("watchlist", [...form.watchlist, entry]);
+    }
+    setNewBoard({ provider: "greenhouse", boardOrSlug: "", displayName: "" });
   }
 
   function validateStep1(): boolean {
@@ -224,12 +263,27 @@ export function OnboardingForm() {
         remoteOk: form.workStyle !== "onsite",
         seniority: form.seniority,
         timezone: "Asia/Kolkata",
+        watchlist: form.watchlist,
       });
       if (result && !result.ok) {
         setServerError(result.error);
       }
     });
   }
+
+  const stepTitles = [
+    "Who are you?",
+    "Career preferences",
+    "Company watchlists",
+    "Notifications & schedule",
+  ];
+
+  const stepSubtitles = [
+    "Your name and email are used to personalise briefings and send daily updates.",
+    "Tell the agent what to look for. You can change this any time in Settings.",
+    "Pick companies the agent should monitor. You can add more any time from Settings.",
+    "Review your notification setup. The schedule is managed externally via AWS EventBridge.",
+  ];
 
   return (
     <div className="animate-fade-up">
@@ -240,17 +294,10 @@ export function OnboardingForm() {
             <StepIndicator current={step} total={TOTAL_STEPS} />
           </div>
           <h2 className="font-display mt-3 text-[2rem] font-semibold leading-tight tracking-[-0.03em] text-[var(--ink)]">
-            {step === 1 && "Who are you?"}
-            {step === 2 && "Career preferences"}
-            {step === 3 && "Notifications & schedule"}
+            {stepTitles[step - 1]}
           </h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            {step === 1 &&
-              "Your name and email are used to personalise briefings and send daily updates."}
-            {step === 2 &&
-              "Tell the agent what to look for. You can change this any time in Settings."}
-            {step === 3 &&
-              "Review your notification setup. The schedule is managed externally via AWS EventBridge."}
+            {stepSubtitles[step - 1]}
           </p>
         </CardHeader>
 
@@ -404,8 +451,116 @@ export function OnboardingForm() {
             </div>
           )}
 
-          {/* ---- Step 3: Notification review ---- */}
+          {/* ---- Step 3: Company watchlists ---- */}
           {step === 3 && (
+            <div className="space-y-5">
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                  Suggested boards
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {SUGGESTED_BOARDS.map((entry) => {
+                    const active = form.watchlist.some(
+                      (w) => watchlistKey(w) === watchlistKey(entry),
+                    );
+                    return (
+                      <button
+                        key={watchlistKey(entry)}
+                        type="button"
+                        onClick={() => toggleSuggestedBoard(entry)}
+                        className={[
+                          "rounded-[3px] border px-3 py-1.5 text-sm font-semibold transition-colors",
+                          active
+                            ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-fg)] shadow-[2px_2px_0_var(--ink)]"
+                            : "border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--ink)] hover:bg-[var(--surface-3)]",
+                        ].join(" ")}
+                        aria-pressed={active}
+                      >
+                        {entry.displayName}
+                        <span className="ml-1.5 text-[0.65rem] font-normal opacity-70">
+                          {entry.provider}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="border-t border-[var(--border)] pt-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                  Add a custom board
+                </p>
+                <div className="grid gap-2 sm:grid-cols-[auto_1fr_1fr_auto]">
+                  <div className="flex gap-1">
+                    {(["greenhouse", "lever"] as const).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setNewBoard((b) => ({ ...b, provider: p }))}
+                        className={[
+                          "rounded-[3px] border px-2 py-1.5 text-xs font-semibold transition-colors",
+                          newBoard.provider === p
+                            ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-fg)]"
+                            : "border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--ink)] hover:bg-[var(--surface-3)]",
+                        ].join(" ")}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <Input
+                    placeholder="board-slug"
+                    value={newBoard.boardOrSlug}
+                    onChange={(e) =>
+                      setNewBoard((b) => ({ ...b, boardOrSlug: e.target.value }))
+                    }
+                  />
+                  <Input
+                    placeholder="Company name"
+                    value={newBoard.displayName}
+                    onChange={(e) =>
+                      setNewBoard((b) => ({ ...b, displayName: e.target.value }))
+                    }
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomBoard(); }}}
+                  />
+                  <Button type="button" variant="outline" onClick={addCustomBoard}>
+                    Add
+                  </Button>
+                </div>
+              </div>
+
+              {form.watchlist.length > 0 && (
+                <div className="border-t border-[var(--border)] pt-4">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                    Selected ({form.watchlist.length})
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {form.watchlist.map((entry) => (
+                      <button
+                        key={watchlistKey(entry)}
+                        type="button"
+                        onClick={() => toggleSuggestedBoard(entry)}
+                        className="inline-flex items-center gap-1 rounded-[3px] border border-[var(--accent)] bg-[var(--accent-soft)] px-2 py-0.5 text-xs font-semibold text-[var(--accent)]"
+                        title="Click to remove"
+                      >
+                        {entry.displayName}
+                        <span aria-hidden="true" className="opacity-60">×</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {form.watchlist.length === 0 && (
+                <p className="text-xs text-[var(--muted)]">
+                  No companies selected. You can always add them later from Settings.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* ---- Step 4: Notification review ---- */}
+          {step === 4 && (
             <div className="space-y-5">
               <div className="rounded-[4px] border border-[var(--border)] bg-[var(--surface-2)] px-4 py-4 space-y-3">
                 <div className="flex items-start justify-between gap-4">
@@ -442,6 +597,17 @@ export function OnboardingForm() {
                       Read-only — reflects the EventBridge schedule timezone.
                     </p>
                   </div>
+                </div>
+
+                <div className="border-t border-[var(--border)] pt-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Company watchlists
+                  </p>
+                  <p className="mt-0.5 text-sm text-[var(--ink)]">
+                    {form.watchlist.length === 0
+                      ? "None selected — you can add boards from Settings."
+                      : form.watchlist.map((w) => w.displayName).join(", ")}
+                  </p>
                 </div>
 
                 <div className="border-t border-[var(--border)] pt-3">

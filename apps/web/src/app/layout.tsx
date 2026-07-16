@@ -30,12 +30,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // First-run redirect: if no profile exists, send to /onboard.
-  // Exceptions: already on /onboard, and DynamoDB unreachable (fail open).
+  // Exceptions: already on /onboard, API routes (no redirect needed), and DynamoDB unreachable (fail open).
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? headersList.get("x-invoke-path") ?? "";
   const isOnboarding = pathname.startsWith("/onboard");
+  const isApiRoute = pathname.startsWith("/api/");
 
-  if (!isOnboarding) {
+  if (!isOnboarding && !isApiRoute) {
     try {
       const profile = await getProfile();
       if (!profile) {

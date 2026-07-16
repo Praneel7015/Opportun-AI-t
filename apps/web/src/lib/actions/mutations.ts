@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { JobSourceProvider } from "@opportun-ai-t/core";
+import { sendWelcomeEmail } from "../email/welcome";
 import {
   deleteSource,
   setJobSaved,
@@ -141,6 +142,12 @@ export async function toggleSavedAction(
   }
 }
 
+const WatchlistEntrySchema = z.object({
+  provider: z.enum([JobSourceProvider.GREENHOUSE, JobSourceProvider.LEVER]),
+  boardOrSlug: z.string().min(1).max(80),
+  displayName: z.string().min(1).max(80),
+});
+
 const OnboardingInputSchema = z.object({
   displayName: z.string().min(1).max(120),
   email: z.string().email(),
@@ -151,6 +158,7 @@ const OnboardingInputSchema = z.object({
   remoteOk: z.boolean().default(true),
   seniority: z.array(z.string()).default([]),
   timezone: z.string().default("Asia/Kolkata"),
+  watchlist: z.array(WatchlistEntrySchema).default([]),
 });
 
 export type OnboardingInput = z.infer<typeof OnboardingInputSchema>;
@@ -176,8 +184,25 @@ export async function saveOnboardingProfileAction(
       remoteOk: parsed.data.remoteOk,
       timezone: parsed.data.timezone,
     });
+
+    // Seed the chosen watchlist boards into DynamoDB
+    for (const entry of parsed.data.watchlist) {
+      await upsertSource({
+        provider: entry.provider,
+        boardOrSlug: entry.boardOrSlug,
+        displayName: entry.displayName,
+        enabled: true,
+      });
+    }
+
     revalidatePath("/");
     revalidatePath("/settings");
+
+    // Fire-and-forget welcome email — never blocks redirect
+    void sendWelcomeEmail({
+      toEmail: parsed.data.email,
+      displayName: parsed.data.displayName,
+    });
   } catch (err) {
     return {
       ok: false,

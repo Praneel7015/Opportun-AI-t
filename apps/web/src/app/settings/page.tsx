@@ -26,12 +26,15 @@ export default async function SettingsPage() {
     listSources(),
   ]);
 
-  const effective = profile ?? DEMO_PROFILE;
+  // Use real profile for the form; only fall back to DEMO_PROFILE values for
+  // schedule metadata (staleFollowUpDays) so the card always shows something sensible.
   const scheduleTimezone =
-    process.env.SCHEDULE_TIMEZONE ?? effective.timezone;
+    process.env.SCHEDULE_TIMEZONE ?? profile?.timezone ?? DEMO_PROFILE.timezone;
   const scheduleExpression =
     process.env.SCHEDULE_EXPRESSION ?? "cron(0 8 * * ? *)";
   const analysisCap = process.env.ANALYSIS_CAP ?? "10";
+  const staleFollowUpDays =
+    profile?.preferences.staleFollowUpDays ?? DEMO_PROFILE.preferences.staleFollowUpDays;
 
   return (
     <div className="space-y-8">
@@ -54,7 +57,12 @@ export default async function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProfileForm profile={effective} />
+          {!profile && (
+            <p className="mb-4 text-xs text-[var(--muted)]">
+              Defaults shown — complete onboarding to personalise your profile.
+            </p>
+          )}
+          <ProfileForm profile={profile ?? DEMO_PROFILE} />
         </CardContent>
       </Card>
 
@@ -103,7 +111,7 @@ export default async function SettingsPage() {
             <div>
               <dt className="text-[var(--muted)]">Stale follow-up threshold</dt>
               <dd className="font-medium">
-                {effective.preferences.staleFollowUpDays} days
+                {staleFollowUpDays} days
               </dd>
             </div>
           </dl>

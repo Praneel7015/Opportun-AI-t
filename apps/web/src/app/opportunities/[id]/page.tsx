@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { EstimateCallout, ScorePill } from "@/components/shared/meta";
 import { SaveToggle } from "@/components/opportunities/save-toggle";
+import { CopyUrlButton } from "@/components/opportunities/copy-url-button";
 import {
   getApplication,
   getJob,
@@ -61,6 +62,7 @@ export default async function OpportunityDetailPage({
           <div className="flex items-center gap-2">
             {evaluation ? <ScorePill score={evaluation.matchScore} /> : null}
             <SaveToggle fingerprint={job.fingerprint} saved={!!saved} />
+            {href && <CopyUrlButton url={href} />}
           </div>
         </div>
       </header>
@@ -83,9 +85,9 @@ export default async function OpportunityDetailPage({
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex text-[var(--accent)] hover:underline"
+              className="inline-flex items-center gap-2 rounded-[3px] border-2 border-[var(--ink)] bg-[var(--accent)] px-4 py-2 text-sm font-bold text-[var(--accent-fg)] shadow-[2px_2px_0_var(--ink)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
-              Open original posting →
+              Apply now →
             </a>
           </CardContent>
         </Card>

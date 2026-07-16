@@ -236,6 +236,7 @@ export async function runCareerAgentPipeline(
       dryRun: config.dryRun,
       runDate,
       nowIso,
+      displayName: profile.displayName,
       evaluations,
       inserted,
       followUpCount: followUps.length,
@@ -243,6 +244,13 @@ export async function runCareerAgentPipeline(
       trendInsight: weekly.insight,
     });
     await repo.putDailyReport(report);
+
+    // Resolve recipient email: prefer verified profile email, fall back to env var.
+    const isValidEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+    const toEmail =
+      profile.email && isValidEmail(profile.email)
+        ? profile.email
+        : config.sesToEmail;
 
     // SES briefing only (never follow-up drafts)
     const ses =
@@ -252,7 +260,7 @@ export async function runCareerAgentPipeline(
         : new SesEmailSender({
             region: config.region,
             fromEmail: config.sesFromEmail,
-            toEmail: config.sesToEmail,
+            toEmail,
           }));
 
     if (ses) {
@@ -438,6 +446,7 @@ async function buildDailyReport(input: {
   dryRun: boolean;
   runDate: string;
   nowIso: string;
+  displayName?: string;
   evaluations: AiEvaluation[];
   inserted: NormalizedJob[];
   followUpCount: number;
@@ -476,6 +485,7 @@ async function buildDailyReport(input: {
     try {
       const digest = await input.bedrock.writeDigest({
         runDate: input.runDate,
+        displayName: input.displayName,
         topMatches: topMatches.map((m) => ({
           company: m.company,
           title: m.title,

@@ -209,6 +209,7 @@ export async function updateProfile(
       ...(input.skills ? { skills: input.skills } : {}),
       ...(input.locations ? { locations: input.locations } : {}),
       ...(input.remoteOk !== undefined ? { remoteOk: input.remoteOk } : {}),
+      ...(input.seniority ? { seniority: input.seniority } : {}),
       ...(input.staleFollowUpDays !== undefined
         ? { staleFollowUpDays: input.staleFollowUpDays }
         : {}),

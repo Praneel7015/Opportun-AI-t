@@ -3,10 +3,12 @@ import { RunStatus } from "@opportun-ai-t/core";
 import { Badge } from "@/components/ui/badge";
 import { DataModeBadge, ScorePill } from "@/components/shared/meta";
 import { MarkdownLite } from "@/components/shared/markdown-lite";
+import { RunNowButton } from "@/components/dashboard/run-now-button";
 import {
   getDataMode,
   getLatestDailyReport,
   getLatestRun,
+  getProfile,
   listFollowUps,
   listOpportunities,
 } from "@/lib/db/repositories";
@@ -23,16 +25,66 @@ function formatWhen(iso?: string) {
   });
 }
 
+/** Returns "in X h Y m" relative to now for a future ISO timestamp. */
+function nextRunCountdown(scheduleExpr: string, timezone: string): string {
+  // Parse cron(M H * * ? *) — EventBridge format
+  const match = scheduleExpr.match(/cron\((\d+)\s+(\d+)\s+/);
+  if (!match) return "—";
+  const [, minuteStr, hourStr] = match;
+  const minute = parseInt(minuteStr, 10);
+  const hour = parseInt(hourStr, 10);
+
+  // Find next occurrence in the schedule timezone
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const parts = Object.fromEntries(
+    formatter.formatToParts(now).map(({ type, value }) => [type, value]),
+  );
+  // Build a Date representing today's scheduled time in that timezone
+  const todayScheduled = new Date(
+    `${parts.year}-${parts.month}-${parts.day}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00`,
+  );
+  // Adjust for timezone offset
+  const tzOffset =
+    new Date(now.toLocaleString("en-US", { timeZone: timezone })).getTime() -
+    new Date(now.toLocaleString("en-US", { timeZone: "UTC" })).getTime();
+  const scheduledUtc = todayScheduled.getTime() - tzOffset;
+  const target = scheduledUtc > now.getTime() ? scheduledUtc : scheduledUtc + 86_400_000;
+  const diffMs = target - now.getTime();
+  const h = Math.floor(diffMs / 3_600_000);
+  const m = Math.floor((diffMs % 3_600_000) / 60_000);
+  if (h === 0) return `in ${m}m`;
+  return `in ${h}h ${m}m`;
+}
+
 export default async function DashboardPage() {
-  const [mode, briefing, run, followUps, opportunities] = await Promise.all([
-    Promise.resolve(getDataMode()),
-    getLatestDailyReport(),
-    getLatestRun(),
-    listFollowUps(10),
-    listOpportunities({ minScore: 70 }),
-  ]);
+  const [mode, briefing, run, followUps, opportunities, profile] =
+    await Promise.all([
+      Promise.resolve(getDataMode()),
+      getLatestDailyReport(),
+      getLatestRun(),
+      listFollowUps(10),
+      listOpportunities({ minScore: 70 }),
+      getProfile(),
+    ]);
 
   const topMatches = opportunities.slice(0, 4);
+  const userName = profile?.displayName ?? null;
+  const scheduleExpr =
+    process.env.SCHEDULE_EXPRESSION ?? "cron(0 8 * * ? *)";
+  const scheduleTz =
+    process.env.SCHEDULE_TIMEZONE ?? profile?.timezone ?? "Asia/Kolkata";
+  const countdown = nextRunCountdown(scheduleExpr, scheduleTz);
+
   const trendCards = [
     {
       label: "Top match score",
@@ -57,9 +109,9 @@ export default async function DashboardPage() {
       tone: "neutral" as const,
     },
     {
-      label: "Briefing follow-ups",
-      value: briefing ? String(briefing.followUpCount) : "—",
-      delta: briefing?.trendInsight?.slice(0, 48),
+      label: "Next scheduled run",
+      value: countdown,
+      delta: run ? `Last: ${formatWhen(run.startedAt)}` : "No runs yet",
       tone: "neutral" as const,
     },
   ];
@@ -76,7 +128,7 @@ export default async function DashboardPage() {
         </h1>
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
           <span>{briefing ? formatWhen(briefing.createdAt) : "Awaiting first edition"}</span>
-          <span>Desk / default</span>
+          {userName ? <span>Desk / {userName}</span> : <span>Desk</span>}
           {run ? <span>Run {run.runDate}</span> : null}
         </div>
       </header>
@@ -102,6 +154,9 @@ export default async function DashboardPage() {
 
         <aside className="border-l-2 border-[var(--ink)] pl-5">
           <p className="page-kicker">Run desk</p>
+          <div className="mt-3 mb-1">
+            <RunNowButton />
+          </div>
           {run ? (
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between gap-4 border-b border-[var(--border)] pb-2">
@@ -116,12 +171,27 @@ export default async function DashboardPage() {
                 <dt className="text-[var(--muted)]">Started</dt>
                 <dd className="tabular-nums text-right">{formatWhen(run.startedAt)}</dd>
               </div>
+              <div className="flex justify-between gap-4 border-b border-[var(--border)] pb-2">
+                <dt className="text-[var(--muted)]">Jobs fetched</dt>
+                <dd className="tabular-nums">{run.metrics.jobsFetched}</dd>
+              </div>
+              <div className="flex justify-between gap-4 border-b border-[var(--border)] pb-2">
+                <dt className="text-[var(--muted)]">Analyzed</dt>
+                <dd className="tabular-nums">{run.metrics.jobsAnalyzed}</dd>
+              </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-[var(--muted)]">Delivery</dt>
-                <dd>{run.metrics.emailSent ? "Sent" : "Not sent"}</dd>
+                <dd>{run.metrics.emailSent ? "Sent ✓" : "Not sent"}</dd>
               </div>
             </dl>
-          ) : <p className="mt-4 text-sm text-[var(--muted)]">No runs recorded yet.</p>}
+          ) : (
+            <div className="mt-4 space-y-3 text-sm">
+              <p className="text-[var(--muted)]">No runs recorded yet.</p>
+              <p className="text-xs text-[var(--muted)]">
+                Next run {countdown} at 08:00 {scheduleTz}.
+              </p>
+            </div>
+          )}
         </aside>
       </section>
 

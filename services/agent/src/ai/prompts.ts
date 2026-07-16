@@ -55,6 +55,7 @@ export function buildDigestSystemPrompt(): string {
 
 export function buildDigestUserPrompt(input: {
   runDate: string;
+  displayName?: string;
   topMatches: Array<{
     company: string;
     title: string;

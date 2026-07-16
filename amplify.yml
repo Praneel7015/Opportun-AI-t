@@ -18,6 +18,9 @@ applications:
             - printf 'SCHEDULE_EXPRESSION=%s\n' "${SCHEDULE_EXPRESSION:-cron(0 8 * * ? *)}" >> apps/web/.env.production
             - printf 'ANALYSIS_CAP=%s\n' "${ANALYSIS_CAP:-10}" >> apps/web/.env.production
             - printf 'NEXT_PUBLIC_APP_NAME=%s\n' "${NEXT_PUBLIC_APP_NAME:-Opportun-AI-t}" >> apps/web/.env.production
+            - printf 'SES_FROM_EMAIL=%s\n' "${SES_FROM_EMAIL}" >> apps/web/.env.production
+            - printf 'LAMBDA_FUNCTION_URL=%s\n' "${LAMBDA_FUNCTION_URL}" >> apps/web/.env.production
+            - printf 'TRIGGER_SECRET=%s\n' "${TRIGGER_SECRET}" >> apps/web/.env.production
             - echo "Baked env keys:"; cut -d= -f1 apps/web/.env.production
         build:
           commands:
