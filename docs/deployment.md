@@ -138,8 +138,17 @@ applications:
 
    `amplify.yml` writes these into `apps/web/.env.production` during **preBuild**, and `next.config.ts` exposes them to the SSR bundle. After changing Amplify env vars, trigger a new deploy so they are re-baked.
 
-7. Grant the Amplify SSR / compute role **DynamoDB read/write** on the table ARN (IAM). Never commit access keys into the repo or Amplify env for long-lived secrets if a role can be used.
-8. Save and deploy; wait for the build; open the Amplify URL and verify `/api/health` shows `mode: "dynamodb"` and `TABLE_NAME_set: true`.
+7. Attach an **SSR Compute role** (not just the Amplify service/logging role) so Next.js can call DynamoDB:
+
+   - Role: `OpportunAiT-AmplifySSRComputeRole`
+   - Trust: `amplify.amazonaws.com` → `sts:AssumeRole`
+   - Policy: `OpportunAiT-AmplifyDynamoAccess` (table + indexes)
+   - Attach via Amplify console **App settings → IAM roles → Compute role**, or:
+     `aws amplify update-app --app-id dy5jhx1jn3iz3 --compute-role-arn arn:aws:iam::ACCOUNT:role/OpportunAiT-AmplifySSRComputeRole --region ap-south-1`
+
+   Without this role, DynamoDB calls fail with `Could not load credentials from any providers` and pages throw a server-side exception.
+
+8. Save and deploy; wait for the build; open the Amplify URL and confirm the UI badge shows **DynamoDB** (not demo memory).
 
 ### Create Amplify app from CLI (already done)
 
