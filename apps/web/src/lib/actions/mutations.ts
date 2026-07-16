@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { JobSourceProvider } from "@opportun-ai-t/core";
@@ -138,4 +139,50 @@ export async function toggleSavedAction(
       error: err instanceof Error ? err.message : "Toggle failed",
     };
   }
+}
+
+const OnboardingInputSchema = z.object({
+  displayName: z.string().min(1).max(120),
+  email: z.string().email(),
+  headline: z.string().max(200).optional(),
+  targetRoles: z.array(z.string()).default([]),
+  skills: z.array(z.string()).default([]),
+  locations: z.array(z.string()).default([]),
+  remoteOk: z.boolean().default(true),
+  seniority: z.array(z.string()).default([]),
+  timezone: z.string().default("Asia/Kolkata"),
+});
+
+export type OnboardingInput = z.infer<typeof OnboardingInputSchema>;
+
+export async function saveOnboardingProfileAction(
+  raw: unknown,
+): Promise<ActionResult> {
+  const parsed = OnboardingInputSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    };
+  }
+  try {
+    await updateProfile({
+      displayName: parsed.data.displayName,
+      email: parsed.data.email,
+      headline: parsed.data.headline,
+      targetRoles: parsed.data.targetRoles,
+      skills: parsed.data.skills,
+      locations: parsed.data.locations,
+      remoteOk: parsed.data.remoteOk,
+      timezone: parsed.data.timezone,
+    });
+    revalidatePath("/");
+    revalidatePath("/settings");
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Failed to save profile",
+    };
+  }
+  redirect("/");
 }

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { AppNav } from "@/components/layout/app-nav";
+import { getProfile } from "@/lib/db/repositories";
 import "./globals.css";
 
 const editorial = Cormorant_Garamond({
@@ -21,11 +24,27 @@ export const metadata: Metadata = {
   description: "A personal career operations desk",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // First-run redirect: if no profile exists, send to /onboard.
+  // Exceptions: already on /onboard, and DynamoDB unreachable (fail open).
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? headersList.get("x-invoke-path") ?? "";
+  const isOnboarding = pathname.startsWith("/onboard");
+
+  if (!isOnboarding) {
+    try {
+      const profile = await getProfile();
+      if (!profile) {
+        redirect("/onboard");
+      }
+    } catch {
+      // DynamoDB unreachable — show app as-is rather than redirect loop
+    }
+  }
   return (
     <html lang="en" className={`${editorial.variable} ${sourceSans.variable}`}>
       <body className="min-h-screen antialiased">
