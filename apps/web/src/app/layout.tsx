@@ -29,23 +29,32 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // First-run redirect: if no profile exists, send to /onboard.
-  // Exceptions: already on /onboard, API routes (no redirect needed), and DynamoDB unreachable (fail open).
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") ?? headersList.get("x-invoke-path") ?? "";
+  const pathname = headersList.get("x-pathname") ?? "";
+  const userId = headersList.get("x-user-id")?.trim() || null;
+
   const isOnboarding = pathname.startsWith("/onboard");
   const isApiRoute = pathname.startsWith("/api/");
 
   if (!isOnboarding && !isApiRoute) {
+    // If there's no userId cookie at all, send straight to onboarding —
+    // no DynamoDB call needed.
+    if (!userId) {
+      redirect("/onboard");
+    }
+
+    // Cookie exists — verify the profile is in DynamoDB (catches cases where
+    // the cookie outlives a table reset or the profile was never written).
     try {
-      const profile = await getProfile();
+      const profile = await getProfile(userId);
       if (!profile) {
         redirect("/onboard");
       }
     } catch {
-      // DynamoDB unreachable — show app as-is rather than redirect loop
+      // DynamoDB unreachable — show app rather than redirect loop
     }
   }
+
   return (
     <html lang="en" className={`${editorial.variable} ${sourceSans.variable}`}>
       <body className="min-h-screen antialiased">

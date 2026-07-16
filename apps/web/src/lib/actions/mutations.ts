@@ -3,8 +3,10 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { nanoid } from "nanoid";
 import { JobSourceProvider } from "@opportun-ai-t/core";
 import { sendWelcomeEmail } from "../email/welcome";
+import { setUserIdCookie, getUserId } from "../session";
 import {
   deleteSource,
   setJobSaved,
@@ -57,7 +59,8 @@ export async function updateProfileAction(
     };
   }
   try {
-    await updateProfile(parsed.data);
+    const userId = (await getUserId()) ?? undefined;
+    await updateProfile(parsed.data, userId);
     revalidatePath("/settings");
     revalidatePath("/");
     return { ok: true, data: undefined };
@@ -80,7 +83,8 @@ export async function upsertSourceAction(
     };
   }
   try {
-    await upsertSource(parsed.data);
+    const userId = (await getUserId()) ?? undefined;
+    await upsertSource(parsed.data, userId);
     revalidatePath("/settings");
     return { ok: true, data: undefined };
   } catch (err) {
@@ -106,7 +110,8 @@ export async function deleteSourceAction(
     return { ok: false, error: "Invalid source key" };
   }
   try {
-    await deleteSource(parsed.data.provider, parsed.data.boardOrSlug);
+    const userId = (await getUserId()) ?? undefined;
+    await deleteSource(parsed.data.provider, parsed.data.boardOrSlug, userId);
     revalidatePath("/settings");
     return { ok: true, data: undefined };
   } catch (err) {
@@ -174,25 +179,38 @@ export async function saveOnboardingProfileAction(
     };
   }
   try {
-    await updateProfile({
-      displayName: parsed.data.displayName,
-      email: parsed.data.email,
-      headline: parsed.data.headline,
-      targetRoles: parsed.data.targetRoles,
-      skills: parsed.data.skills,
-      locations: parsed.data.locations,
-      remoteOk: parsed.data.remoteOk,
-      timezone: parsed.data.timezone,
-    });
+    // Reuse existing userId if the user already has a cookie (re-onboarding).
+    // Otherwise generate a fresh one — each new visitor gets their own namespace.
+    const existingId = await getUserId();
+    const userId = existingId ?? nanoid(16);
+    await setUserIdCookie(userId);
 
-    // Seed the chosen watchlist boards into DynamoDB
+    await updateProfile(
+      {
+        displayName: parsed.data.displayName,
+        email: parsed.data.email,
+        headline: parsed.data.headline,
+        targetRoles: parsed.data.targetRoles,
+        skills: parsed.data.skills,
+        locations: parsed.data.locations,
+        remoteOk: parsed.data.remoteOk,
+        seniority: parsed.data.seniority,
+        timezone: parsed.data.timezone,
+      },
+      userId,
+    );
+
+    // Seed the chosen watchlist boards into DynamoDB under this user's namespace
     for (const entry of parsed.data.watchlist) {
-      await upsertSource({
-        provider: entry.provider,
-        boardOrSlug: entry.boardOrSlug,
-        displayName: entry.displayName,
-        enabled: true,
-      });
+      await upsertSource(
+        {
+          provider: entry.provider,
+          boardOrSlug: entry.boardOrSlug,
+          displayName: entry.displayName,
+          enabled: true,
+        },
+        userId,
+      );
     }
 
     revalidatePath("/");

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { getProfile } from "@/lib/db/repositories";
 import { OnboardingForm } from "./onboarding-form";
 
@@ -9,17 +10,20 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function OnboardPage() {
-  // If a profile already exists, skip straight to the dashboard
-  try {
-    const profile = await getProfile();
-    if (profile) redirect("/");
-  } catch {
-    // DynamoDB unreachable — allow the page to render anyway
+  // If the visitor already has a userId cookie AND an existing profile, skip to dashboard.
+  const headersList = await headers();
+  const userId = headersList.get("x-user-id")?.trim() || null;
+  if (userId) {
+    try {
+      const profile = await getProfile(userId);
+      if (profile) redirect("/");
+    } catch {
+      // DynamoDB unreachable — allow onboard page to render
+    }
   }
 
   return (
     <div className="mx-auto max-w-[600px] py-10 sm:py-16 animate-fade-up">
-      {/* Header */}
       <div className="mb-8">
         <p className="page-kicker mb-3">Welcome</p>
         <h1 className="page-title mb-3">
@@ -34,7 +38,6 @@ export default async function OnboardPage() {
 
       <OnboardingForm />
 
-      {/* Footer note */}
       <p className="mt-6 text-center text-xs text-[var(--muted)]">
         All data is stored in your own AWS DynamoDB table. Nothing leaves your
         infrastructure.

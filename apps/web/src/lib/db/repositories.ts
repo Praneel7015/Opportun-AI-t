@@ -11,6 +11,7 @@ import {
   ApplicationStatus,
   AiEvaluationSchema,
   DailyReportSchema,
+  DEFAULT_USER_ID,
   EntityKind,
   FollowUpDraftSchema,
   NormalizedJobSchema,
@@ -163,8 +164,8 @@ export function getDataMode(): "memory" | "dynamodb" {
   return useMemoryStore() ? "memory" : "dynamodb";
 }
 
-export async function getProfile(): Promise<UserProfile | null> {
-  const keys = profileKeys();
+export async function getProfile(userId = DEFAULT_USER_ID): Promise<UserProfile | null> {
+  const keys = profileKeys(userId);
   const item = await getItem(keys.PK, keys.SK);
   if (!item) return null;
   return UserProfileSchema.parse(stripKeys(item));
@@ -172,11 +173,12 @@ export async function getProfile(): Promise<UserProfile | null> {
 
 export async function updateProfile(
   input: UpdateProfileInput,
+  userId = DEFAULT_USER_ID,
 ): Promise<UserProfile> {
   const now = new Date().toISOString();
-  const existing = (await getProfile()) ?? {
+  const existing = (await getProfile(userId)) ?? {
     entityType: "PROFILE" as const,
-    userId: "default",
+    userId,
     displayName: "User",
     email: "you@example.com",
     headline: "",
@@ -192,7 +194,7 @@ export async function updateProfile(
       minMatchScore: 50,
       staleFollowUpDays: 7,
     },
-    timezone: process.env.SCHEDULE_TIMEZONE ?? "America/Los_Angeles",
+    timezone: process.env.SCHEDULE_TIMEZONE ?? "Asia/Kolkata",
     createdAt: now,
     updatedAt: now,
   };
@@ -217,12 +219,12 @@ export async function updateProfile(
     updatedAt: now,
   });
 
-  await putItem({ ...profileKeys(), ...next });
+  await putItem({ ...profileKeys(userId), ...next });
   return next;
 }
 
-export async function listSources(): Promise<SourceConfig[]> {
-  const q = QueryPrefixes.userSources();
+export async function listSources(userId = DEFAULT_USER_ID): Promise<SourceConfig[]> {
+  const q = QueryPrefixes.userSources(userId);
   const items = await queryPk(q.PK, q.SKBeginsWith);
   return items
     .map((item) => SourceConfigSchema.parse(stripKeys(item)))
@@ -235,10 +237,11 @@ export async function listSources(): Promise<SourceConfig[]> {
 
 export async function upsertSource(
   input: UpsertSourceInput,
+  userId = DEFAULT_USER_ID,
 ): Promise<SourceConfig> {
   const now = new Date().toISOString();
   const existingItems = await queryPk(
-    QueryPrefixes.userSources().PK,
+    QueryPrefixes.userSources(userId).PK,
     `SOURCE#${input.provider}#${input.boardOrSlug.toLowerCase()}`,
   );
   const existing = existingItems[0]
@@ -247,7 +250,7 @@ export async function upsertSource(
 
   const source = SourceConfigSchema.parse({
     entityType: "SOURCE",
-    userId: "default",
+    userId,
     provider: input.provider,
     boardOrSlug: input.boardOrSlug.toLowerCase(),
     displayName: input.displayName,
@@ -257,7 +260,7 @@ export async function upsertSource(
   });
 
   await putItem({
-    ...sourceKeys(source.provider, source.boardOrSlug),
+    ...sourceKeys(source.provider, source.boardOrSlug, userId),
     ...source,
   });
   return source;
@@ -266,8 +269,9 @@ export async function upsertSource(
 export async function deleteSource(
   provider: SourceConfig["provider"],
   boardOrSlug: string,
+  userId = DEFAULT_USER_ID,
 ): Promise<void> {
-  const keys = sourceKeys(provider, boardOrSlug);
+  const keys = sourceKeys(provider, boardOrSlug, userId);
   await deleteItem(keys.PK, keys.SK);
 }
 

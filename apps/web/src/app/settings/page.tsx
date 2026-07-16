@@ -15,15 +15,17 @@ import {
   getProfile,
   listSources,
 } from "@/lib/db/repositories";
+import { getRequestUserId } from "@/lib/request-context";
 import { DEMO_PROFILE } from "@/lib/data/demo-seed";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
+  const userId = await getRequestUserId();
   const [mode, profile, sources] = await Promise.all([
     Promise.resolve(getDataMode()),
-    getProfile(),
-    listSources(),
+    getProfile(userId),
+    listSources(userId),
   ]);
 
   // Use real profile for the form; only fall back to DEMO_PROFILE values for

@@ -12,6 +12,7 @@ import {
   listFollowUps,
   listOpportunities,
 } from "@/lib/db/repositories";
+import { getRequestUserId } from "@/lib/request-context";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,7 @@ function nextRunCountdown(scheduleExpr: string, timezone: string): string {
 }
 
 export default async function DashboardPage() {
+  const userId = await getRequestUserId();
   const [mode, briefing, run, followUps, opportunities, profile] =
     await Promise.all([
       Promise.resolve(getDataMode()),
@@ -74,7 +76,7 @@ export default async function DashboardPage() {
       getLatestRun(),
       listFollowUps(10),
       listOpportunities({ minScore: 70 }),
-      getProfile(),
+      getProfile(userId),
     ]);
 
   const topMatches = opportunities.slice(0, 4);
