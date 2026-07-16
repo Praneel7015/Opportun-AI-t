@@ -54,8 +54,8 @@ aws logs filter-log-events \
 ## Control center UI
 
 - [ ] Local: `TABLE_NAME=... DEMO_MODE=0 npm run dev:web` against live table
-- [ ] Amplify URL after GitHub connect (app shell: `dy5jhx1jn3iz3.amplifyapp.com`)
-- [ ] Dashboard / Opportunities / Applications / Daily Reports / Settings screenshots
+- [x] Amplify live: [https://main.dy5jhx1jn3iz3.amplifyapp.com](https://main.dy5jhx1jn3iz3.amplifyapp.com)
+- [ ] Dashboard / Opportunities / Applications / Daily Reports / Settings / Onboarding screenshots
 
 ## Local dry-run (no AWS) — optional pre-demo
 
@@ -65,14 +65,13 @@ npm run agent:dry-run
 
 ## Submission assets
 
-- [ ] Public GitHub repo URL (`gh auth login` required — not authenticated during deploy-submit)
-- [ ] Amplify public URL after branch connect + green build
-- [x] Builder Center article draft (≥500 words): `docs/builder-center-article.md` — title **Weekend Agent Challenge: Opportun-AI-t**, tag `#agents`
-- [ ] Paste repo + Amplify links into article placeholders; publish in challenge window
+- [x] Public GitHub: [https://github.com/Praneel7015/Opportun-AI-t](https://github.com/Praneel7015/Opportun-AI-t)
+- [x] Amplify public URL: [https://main.dy5jhx1jn3iz3.amplifyapp.com](https://main.dy5jhx1jn3iz3.amplifyapp.com)
+- [x] Builder Center article (≥500 words): `docs/builder-center-article.md` — title **Weekend Agent Challenge: Opportun-AI-t**, tag `#agents` (repo + Amplify links filled in)
+- [ ] Publish article in Builder Center with `#agents`
 
 ## Remaining user actions
 
 1. Click SES verification link for `praneelteck@gmail.com` → confirm Verified → re-invoke Lambda (delete `RUN#YYYY-MM-DD` first if same day already completed) or wait for 08:00 `Asia/Kolkata`.
-2. `gh auth login` → commit → `gh repo create Opportun-AI-t --public --source=. --remote=origin --push`.
-3. Amplify console → connect GitHub branch to app `dy5jhx1jn3iz3` → set env + IAM for DynamoDB → deploy.
-4. Screenshot Scheduler history + SES inbox + dashboard → finish Builder Center publish with `#agents`.
+2. Screenshot Scheduler history + SES inbox (welcome + daily briefing) + CloudWatch dashboard + onboarding → dashboard path.
+3. Publish `docs/builder-center-article.md` in Builder Center with tag `#agents`.
