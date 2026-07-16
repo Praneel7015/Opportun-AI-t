@@ -34,10 +34,10 @@ export default async function OpportunitiesPage({
   const chip = (href: string, label: string, active: boolean) => (
     <Link
       href={href}
-      className={`rounded-md px-3 py-1.5 text-xs transition-colors ${
+      className={`border-b-2 px-2 py-2 text-xs font-bold uppercase tracking-[0.07em] transition-colors ${
         active
-          ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-          : "bg-[var(--surface-2)] text-[var(--muted)] hover:text-[var(--foreground)]"
+          ? "border-[var(--accent)] text-[var(--accent)]"
+          : "border-transparent text-[var(--muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]"
       }`}
     >
       {label}
@@ -45,21 +45,16 @@ export default async function OpportunitiesPage({
   );
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up">
-        <h1
-          className="text-xl font-semibold tracking-tight sm:text-2xl"
-          style={{ fontFamily: "var(--font-display), sans-serif" }}
-        >
-          Opportunities
-        </h1>
+    <div className="space-y-8">
+      <header className="animate-fade-up border-b border-[var(--border-strong)] pb-5">
+        <p className="page-kicker">Role intelligence · Ranked ledger</p>
+        <h1 className="page-title mt-4">Opportunities</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          AI-ranked roles from your watchlist boards (Saved is a filter via
-          Application status — not a separate page)
+          Ranked roles from your watchlist boards, with saved status and evidence.
         </p>
-      </div>
+      </header>
 
-      <div className="animate-fade-up-delay flex flex-wrap items-center gap-2">
+      <div className="animate-fade-up-delay flex flex-wrap items-center gap-2 border-y border-[var(--border)]">
         {chip("/opportunities", "All", !filters.saved && !filters.minScore && !filters.provider)}
         {chip("/opportunities?saved=1", "Saved", !!filters.saved)}
         {chip(
@@ -79,23 +74,23 @@ export default async function OpportunitiesPage({
         )}
       </div>
 
-      <form className="animate-fade-up-delay flex gap-2" action="/opportunities">
+      <form className="animate-fade-up-delay flex gap-2 border-b border-[var(--border)] pb-6" action="/opportunities">
         {filters.saved ? <input type="hidden" name="saved" value="1" /> : null}
         <input
           name="q"
           defaultValue={filters.q ?? ""}
           placeholder="Search title or company…"
-          className="h-9 flex-1 rounded-md border border-[var(--border)] bg-[var(--surface-2)] px-3 text-sm"
+          className="h-10 min-w-0 flex-1 rounded-[3px] border border-[var(--border-strong)] bg-[#fbf8f0] px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         />
         <button
           type="submit"
-          className="h-9 rounded-md bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-fg)]"
+          className="h-10 rounded-[3px] border border-[var(--accent)] bg-[var(--accent)] px-4 text-sm font-bold text-[var(--accent-fg)] shadow-[2px_2px_0_var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         >
           Search
         </button>
       </form>
 
-      <div className="animate-fade-up-delay-2 space-y-3">
+      <div className="animate-fade-up-delay-2">
         {rows.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-sm text-[var(--muted)]">
@@ -104,13 +99,13 @@ export default async function OpportunitiesPage({
           </Card>
         ) : (
           rows.map(({ job, evaluation, saved }) => (
-            <Card key={job.fingerprint}>
+            <Card key={job.fingerprint} className="ledger-row rounded-none border-x-0 border-b-0 bg-transparent shadow-none first:border-t-2 first:border-t-[var(--ink)]">
               <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
                 <div className="min-w-0">
                   <CardTitle className="text-base">
                     <Link
                       href={`/opportunities/${job.fingerprint}`}
-                      className="hover:text-[var(--accent)]"
+                      className="font-display text-xl hover:text-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                     >
                       {job.title}
                     </Link>

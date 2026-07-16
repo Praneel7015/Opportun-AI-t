@@ -26,26 +26,23 @@ export default async function ReportDetailPage({
     if (!report) notFound();
 
     return (
-      <div className="space-y-6">
-        <div className="animate-fade-up">
+      <div className="space-y-8">
+        <header className="animate-fade-up border-b border-[var(--border-strong)] pb-5">
           <Link
             href="/reports"
             className="text-xs text-[var(--muted)] hover:text-[var(--accent)]"
           >
-            ← Daily Reports
+            ← Reports archive
           </Link>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <h1
-              className="text-xl font-semibold tracking-tight sm:text-2xl"
-              style={{ fontFamily: "var(--font-display), sans-serif" }}
-            >
+            <h1 className="page-title">
               Weekly insight — {report.yearWeek}
             </h1>
             <Badge variant="default">weekly</Badge>
           </div>
-        </div>
+        </header>
 
-        <Card className="animate-fade-up-delay">
+        <Card className="animate-fade-up-delay rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
           <CardHeader>
             <CardTitle>Trend insight</CardTitle>
           </CardHeader>
@@ -79,19 +76,16 @@ export default async function ReportDetailPage({
   if (!report) notFound();
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up">
+    <div className="space-y-8">
+      <header className="animate-fade-up border-b border-[var(--border-strong)] pb-5">
         <Link
           href="/reports"
           className="text-xs text-[var(--muted)] hover:text-[var(--accent)]"
         >
-          ← Daily Reports
+          ← Reports archive
         </Link>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <h1
-            className="text-xl font-semibold tracking-tight sm:text-2xl"
-            style={{ fontFamily: "var(--font-display), sans-serif" }}
-          >
+          <h1 className="page-title max-w-4xl">
             {report.subject}
           </h1>
           <Badge variant="secondary">daily</Badge>
@@ -100,9 +94,9 @@ export default async function ReportDetailPage({
           {report.runDate} · generated{" "}
           {new Date(report.createdAt).toLocaleString()}
         </p>
-      </div>
+      </header>
 
-      <Card className="animate-fade-up-delay">
+      <Card className="animate-fade-up-delay rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
         <CardHeader>
           <CardTitle>Summary</CardTitle>
         </CardHeader>
@@ -122,7 +116,7 @@ export default async function ReportDetailPage({
       </Card>
 
       {report.topMatches.length > 0 ? (
-        <Card className="animate-fade-up-delay-2">
+        <Card className="animate-fade-up-delay-2 rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
           <CardHeader>
             <CardTitle>Top matches referenced</CardTitle>
             <CardDescription>From this digest</CardDescription>
@@ -132,7 +126,7 @@ export default async function ReportDetailPage({
               <Link
                 key={m.fingerprint}
                 href={`/opportunities/${m.fingerprint}`}
-                className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 hover:bg-[var(--surface-2)]"
+                className="ledger-row flex items-center justify-between gap-3 px-2 py-3 hover:bg-[var(--surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 <div>
                   <p className="text-sm font-medium">

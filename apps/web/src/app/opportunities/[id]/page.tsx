@@ -37,8 +37,8 @@ export default async function OpportunityDetailPage({
   const saved = application?.status === ApplicationStatus.SAVED;
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up">
+    <div className="space-y-8">
+      <header className="animate-fade-up border-b border-[var(--border-strong)] pb-5">
         <Link
           href="/opportunities"
           className="text-xs text-[var(--muted)] hover:text-[var(--accent)]"
@@ -47,10 +47,8 @@ export default async function OpportunityDetailPage({
         </Link>
         <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1
-              className="text-xl font-semibold tracking-tight sm:text-2xl"
-              style={{ fontFamily: "var(--font-display), sans-serif" }}
-            >
+            <p className="page-kicker mb-3">Role dossier · {job.provider}</p>
+            <h1 className="page-title max-w-3xl">
               {job.title}
             </h1>
             <p className="mt-1 text-sm text-[var(--muted)]">
@@ -62,10 +60,10 @@ export default async function OpportunityDetailPage({
             <SaveToggle fingerprint={job.fingerprint} saved={!!saved} />
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="animate-fade-up-delay grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none lg:col-span-2">
           <CardHeader>
             <CardTitle>Role snapshot</CardTitle>
             <CardDescription>
@@ -87,7 +85,7 @@ export default async function OpportunityDetailPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-t-4 border-t-[var(--accent)]">
           <CardHeader>
             <CardTitle>AI recommendation</CardTitle>
           </CardHeader>
@@ -118,7 +116,7 @@ export default async function OpportunityDetailPage({
 
       {evaluation ? (
         <div className="animate-fade-up-delay-2 grid gap-4 lg:grid-cols-2">
-          <Card>
+          <Card className="rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
             <CardHeader>
               <CardTitle>Why it matches</CardTitle>
             </CardHeader>
@@ -133,7 +131,7 @@ export default async function OpportunityDetailPage({
               </ul>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
             <CardHeader>
               <CardTitle>Missing skills</CardTitle>
             </CardHeader>

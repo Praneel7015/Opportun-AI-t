@@ -34,24 +34,19 @@ export default async function SettingsPage() {
   const analysisCap = process.env.ANALYSIS_CAP ?? "10";
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-8">
+      <header className="animate-fade-up flex flex-wrap items-end justify-between gap-3 border-b border-[var(--border-strong)] pb-5">
         <div>
-          <h1
-            className="text-xl font-semibold tracking-tight sm:text-2xl"
-            style={{ fontFamily: "var(--font-display), sans-serif" }}
-          >
-            Settings
-          </h1>
+          <p className="page-kicker">Personal desk · Configuration</p>
+          <h1 className="page-title mt-4">Settings</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            Profile, watchlists, and schedule metadata (display-only for the
-            agent schedule)
+            Profile, watchlists, and display-only schedule metadata.
           </p>
         </div>
         <DataModeBadge mode={mode} />
-      </div>
+      </header>
 
-      <Card className="animate-fade-up-delay">
+      <Card className="animate-fade-up-delay rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
         <CardHeader>
           <CardTitle>Profile & preferences</CardTitle>
           <CardDescription>
@@ -63,7 +58,7 @@ export default async function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="animate-fade-up-delay">
+      <Card className="animate-fade-up-delay rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
         <CardHeader>
           <CardTitle>Company watchlists</CardTitle>
           <CardDescription>
@@ -75,7 +70,7 @@ export default async function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="animate-fade-up-delay-2">
+      <Card className="animate-fade-up-delay-2 rounded-none border-x-0 border-b-0 border-t-2 border-t-[var(--ink)] bg-transparent shadow-none">
         <CardHeader>
           <CardTitle>Notification & schedule</CardTitle>
           <CardDescription>

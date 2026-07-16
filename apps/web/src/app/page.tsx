@@ -1,12 +1,5 @@
 import Link from "next/link";
 import { RunStatus } from "@opportun-ai-t/core";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DataModeBadge, ScorePill } from "@/components/shared/meta";
 import {
@@ -71,220 +64,133 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1
-            className="text-xl font-semibold tracking-tight sm:text-2xl"
-            style={{ fontFamily: "var(--font-display), sans-serif" }}
-          >
-            Control center
-          </h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            Latest autonomous work at a glance
-          </p>
+    <div className="space-y-10">
+      <header className="animate-fade-up border-b border-[var(--border-strong)] pb-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="page-kicker">Morning edition · Career operations</p>
+          <DataModeBadge mode={mode} />
         </div>
-        <DataModeBadge mode={mode} />
-      </div>
+        <h1 className="page-title mt-5 max-w-4xl">
+          {briefing?.subject ?? "Your daily career briefing"}
+        </h1>
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1 font-mono text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
+          <span>{briefing ? formatWhen(briefing.createdAt) : "Awaiting first edition"}</span>
+          <span>Desk / default</span>
+          {run ? <span>Run {run.runDate}</span> : null}
+        </div>
+      </header>
 
-      <div className="animate-fade-up-delay grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Latest briefing</CardTitle>
-            <CardDescription>
-              {briefing
-                ? `${briefing.subject} · ${formatWhen(briefing.createdAt)}`
-                : "No briefing yet — seed demo data or wait for the first scheduled run"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--foreground)]/90">
-              {briefing?.summaryMarkdown ??
-                "When the career agent finishes a run, the SES digest summary appears here."}
-            </p>
-            {briefing?.topMatches?.length ? (
-              <ul className="space-y-1.5 text-sm text-[var(--muted)]">
-                {briefing.topMatches.map((m) => (
-                  <li key={m.fingerprint} className="flex gap-2">
-                    <span className="text-[var(--accent)]">▸</span>
-                    <span>
-                      {m.company} — {m.title} ({m.matchScore})
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            {briefing ? (
-              <Link
-                href={`/reports/${briefing.runDate}`}
-                className="inline-block text-sm text-[var(--accent)] hover:underline"
-              >
-                Open full report →
-              </Link>
-            ) : null}
-          </CardContent>
-        </Card>
+      <section className="animate-fade-up-delay grid gap-8 lg:grid-cols-[minmax(0,1.65fr)_minmax(240px,.65fr)]">
+        <article>
+          <p className="font-display text-xl leading-relaxed text-[var(--ink)] sm:text-2xl">
+            {briefing?.summaryMarkdown ??
+              "Your scheduled career agent has not issued a briefing yet. Once a run completes, its digest and ranked recommendations will appear on this desk."}
+          </p>
+          {briefing ? (
+            <Link
+              href={`/reports/${briefing.runDate}`}
+              className="mt-6 inline-block border-b border-[var(--accent)] pb-0.5 text-sm font-bold text-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              Read the issued brief →
+            </Link>
+          ) : null}
+        </article>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span
-                className="signal-dot inline-block h-2 w-2 rounded-full bg-[var(--accent)]"
-                aria-hidden
-              />
-              Recent run
-            </CardTitle>
-            <CardDescription>Read-only status from the agent</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {run ? (
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Status</span>
-                  <Badge
-                    variant={
-                      run.status === RunStatus.COMPLETED
-                        ? "success"
-                        : run.status === RunStatus.FAILED
-                          ? "danger"
-                          : "warning"
-                    }
-                  >
+        <aside className="border-l-2 border-[var(--ink)] pl-5">
+          <p className="page-kicker">Run desk</p>
+          {run ? (
+            <dl className="mt-4 space-y-3 text-sm">
+              <div className="flex justify-between gap-4 border-b border-[var(--border)] pb-2">
+                <dt className="text-[var(--muted)]">Status</dt>
+                <dd>
+                  <Badge variant={run.status === RunStatus.COMPLETED ? "success" : run.status === RunStatus.FAILED ? "danger" : "warning"}>
                     {run.status}
                   </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Run date</span>
-                  <span>{run.runDate}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Started</span>
-                  <span>{formatWhen(run.startedAt)}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 pt-1 text-xs text-[var(--muted)]">
-                  <div className="rounded-md bg-[var(--surface-2)] p-2">
-                    <div className="text-[var(--foreground)]">
-                      {run.metrics.jobsNew}
-                    </div>
-                    New jobs
-                  </div>
-                  <div className="rounded-md bg-[var(--surface-2)] p-2">
-                    <div className="text-[var(--foreground)]">
-                      {run.metrics.jobsAnalyzed}
-                    </div>
-                    Analyzed
-                  </div>
-                  <div className="rounded-md bg-[var(--surface-2)] p-2">
-                    <div className="text-[var(--foreground)]">
-                      {run.metrics.followUpsCreated}
-                    </div>
-                    Follow-ups
-                  </div>
-                  <div className="rounded-md bg-[var(--surface-2)] p-2">
-                    <div className="text-[var(--foreground)]">
-                      {run.metrics.emailSent ? "Yes" : "No"}
-                    </div>
-                    SES sent
-                  </div>
-                </div>
-              </>
-            ) : (
-              <p className="text-[var(--muted)]">No runs recorded yet.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4 border-b border-[var(--border)] pb-2">
+                <dt className="text-[var(--muted)]">Started</dt>
+                <dd className="tabular-nums text-right">{formatWhen(run.startedAt)}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-[var(--muted)]">Delivery</dt>
+                <dd>{run.metrics.emailSent ? "Sent" : "Not sent"}</dd>
+              </div>
+            </dl>
+          ) : <p className="mt-4 text-sm text-[var(--muted)]">No runs recorded yet.</p>}
+        </aside>
+      </section>
 
-      <div className="animate-fade-up-delay-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Latest metrics" className="animate-fade-up-delay-2 grid border-y-2 border-[var(--ink)] sm:grid-cols-2 lg:grid-cols-4">
         {trendCards.map((t) => (
-          <Card key={t.label}>
-            <CardContent className="pt-5">
-              <p className="text-xs uppercase tracking-wider text-[var(--muted)]">
+          <div key={t.label} className="border-b border-[var(--border)] p-4 sm:border-r lg:border-b-0 lg:last:border-r-0">
+              <p className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
                 {t.label}
               </p>
-              <p
-                className="mt-1 text-2xl font-semibold"
-                style={{ fontFamily: "var(--font-display), sans-serif" }}
-              >
+              <p className="font-display mt-1 text-4xl font-semibold tabular-nums text-[var(--ink)]">
                 {t.value}
               </p>
               {t.delta ? (
-                <p
-                  className={`mt-1 truncate text-xs ${
-                    t.tone === "up"
-                      ? "text-[var(--success)]"
-                      : t.tone === "down"
-                        ? "text-[var(--warning)]"
-                        : "text-[var(--muted)]"
-                  }`}
-                >
+                <p className={`mt-1 truncate text-xs ${t.tone === "up" ? "text-[var(--success)]" : t.tone === "down" ? "text-[var(--warning)]" : "text-[var(--muted)]"}`}>
                   {t.delta}
                 </p>
               ) : null}
-            </CardContent>
-          </Card>
+          </div>
         ))}
-      </div>
+      </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top matches</CardTitle>
-            <CardDescription>Highest AI scores from recent analysis</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
+      <div className="grid gap-10 lg:grid-cols-[1.15fr_.85fr]">
+        <section>
+          <div className="section-rule flex items-baseline justify-between">
+            <h2 className="font-display text-2xl font-semibold text-[var(--ink)]">Ranked opportunities</h2>
+            <Link href="/opportunities" className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--accent)]">View ledger →</Link>
+          </div>
+          <div>
             {topMatches.length === 0 ? (
-              <p className="text-sm text-[var(--muted)]">
-                No scored opportunities yet.
-              </p>
+              <p className="border-b border-[var(--border)] py-6 text-sm text-[var(--muted)]">No scored opportunities yet.</p>
             ) : (
-              topMatches.map(({ job, evaluation }) => (
+              topMatches.map(({ job, evaluation }, index) => (
                 <Link
                   key={job.fingerprint}
                   href={`/opportunities/${job.fingerprint}`}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-transparent px-2 py-2 transition-colors hover:border-[var(--border)] hover:bg-[var(--surface-2)]"
+                  className="ledger-row grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
+                  <span className="font-display text-xl text-[var(--muted)]">0{index + 1}</span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{job.title}</p>
-                    <p className="truncate text-xs text-[var(--muted)]">
+                    <p className="truncate font-semibold text-[var(--ink)]">{job.title}</p>
+                    <p className="mt-0.5 truncate text-xs uppercase tracking-[0.06em] text-[var(--muted)]">
                       {job.company} · {job.provider}
                     </p>
                   </div>
-                  {evaluation ? (
-                    <ScorePill score={evaluation.matchScore} />
-                  ) : null}
+                  {evaluation ? <ScorePill score={evaluation.matchScore} /> : null}
                 </Link>
               ))
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Follow-ups needing attention</CardTitle>
-            <CardDescription>
-              Drafts only — the agent never sends follow-up email
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <section>
+          <div className="section-rule">
+            <h2 className="font-display text-2xl font-semibold text-[var(--ink)]">Action queue</h2>
+            <p className="mt-1 text-xs text-[var(--muted)]">Drafts are copy-only and never sent automatically.</p>
+          </div>
+          <div>
             {followUps.length === 0 ? (
-              <p className="text-sm text-[var(--muted)]">Nothing pending.</p>
+              <p className="border-b border-[var(--border)] py-6 text-sm text-[var(--muted)]">Nothing pending.</p>
             ) : (
               followUps.map((fu) => (
                 <Link
                   key={`${fu.fingerprint}-${fu.createdAt}`}
                   href="/applications"
-                  className="block rounded-lg border border-transparent px-2 py-2 transition-colors hover:border-[var(--border)] hover:bg-[var(--surface-2)]"
+                  className="ledger-row block py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
-                  <p className="text-sm font-medium">{fu.reminder}</p>
-                  <p className="text-xs text-[var(--muted)]">
-                    {fu.suggestedAction}
-                  </p>
+                  <p className="text-sm font-semibold text-[var(--ink)]">{fu.reminder}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">{fu.suggestedAction}</p>
                 </Link>
               ))
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </div>
   );

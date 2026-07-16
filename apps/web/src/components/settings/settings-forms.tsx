@@ -127,7 +127,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
             type="checkbox"
             name="remoteOk"
             defaultChecked={profile.preferences.remoteOk}
-            className="h-4 w-4 rounded border-[var(--border)]"
+            className="h-4 w-4 accent-[var(--accent)]"
           />
           Remote OK
         </label>
@@ -169,7 +169,7 @@ export function WatchlistManager({ sources }: { sources: SourceConfig[] }) {
         {sources.map((s) => (
           <li
             key={`${s.provider}-${s.boardOrSlug}`}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/40 px-3 py-2 text-sm"
+            className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border)] bg-[var(--surface-2)]/40 px-3 py-3 text-sm first:border-t-2 first:border-t-[var(--ink)]"
           >
             <div>
               <span className="font-medium">
@@ -202,7 +202,7 @@ export function WatchlistManager({ sources }: { sources: SourceConfig[] }) {
       </ul>
 
       <form
-        className="grid gap-3 rounded-lg border border-dashed border-[var(--border)] p-4 sm:grid-cols-4"
+        className="grid gap-3 border-y border-[var(--border-strong)] bg-[var(--surface-2)]/50 p-4 sm:grid-cols-4"
         onSubmit={(e) => {
           e.preventDefault();
           const fd = new FormData(e.currentTarget);

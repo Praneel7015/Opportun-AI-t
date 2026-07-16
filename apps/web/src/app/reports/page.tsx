@@ -15,18 +15,14 @@ export default async function ReportsPage() {
   const reports = await listReports();
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up">
-        <h1
-          className="text-xl font-semibold tracking-tight sm:text-2xl"
-          style={{ fontFamily: "var(--font-display), sans-serif" }}
-        >
-          Daily Reports
-        </h1>
+    <div className="space-y-8">
+      <header className="animate-fade-up border-b border-[var(--border-strong)] pb-5">
+        <p className="page-kicker">Research archive · Issued briefs</p>
+        <h1 className="page-title mt-4">Reports</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Historical digests produced by the autonomous agent
+          Historical daily digests and weekly market notes.
         </p>
-      </div>
+      </header>
 
       <div className="animate-fade-up-delay space-y-3">
         {reports.length === 0 ? (
@@ -40,13 +36,13 @@ export default async function ReportsPage() {
             if (item.kind === "daily") {
               const report = item.report;
               return (
-                <Card key={`daily-${report.runDate}`}>
+                <Card key={`daily-${report.runDate}`} className="ledger-row rounded-none border-x-0 border-b-0 bg-transparent shadow-none first:border-t-2 first:border-t-[var(--ink)]">
                   <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
                     <div>
                       <CardTitle className="text-base">
                         <Link
                           href={`/reports/${report.runDate}`}
-                          className="hover:text-[var(--accent)]"
+                          className="font-display text-xl hover:text-[var(--accent)]"
                         >
                           {report.subject}
                         </Link>
@@ -69,13 +65,13 @@ export default async function ReportsPage() {
 
             const report = item.report;
             return (
-              <Card key={`weekly-${report.yearWeek}`}>
+              <Card key={`weekly-${report.yearWeek}`} className="ledger-row rounded-none border-x-0 border-b-0 bg-transparent shadow-none first:border-t-2 first:border-t-[var(--ink)]">
                 <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
                   <div>
                     <CardTitle className="text-base">
                       <Link
                         href={`/reports/week-${report.yearWeek}`}
-                        className="hover:text-[var(--accent)]"
+                        className="font-display text-xl hover:text-[var(--accent)]"
                       >
                         Weekly insight — {report.yearWeek}
                       </Link>

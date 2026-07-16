@@ -17,12 +17,16 @@ export function ScorePill({ score }: { score: number }) {
         : score >= 50
           ? "warning"
           : "secondary";
-  return <Badge variant={variant}>{score}</Badge>;
+  return (
+    <Badge className="min-w-10 justify-center font-mono text-sm tabular-nums" variant={variant}>
+      {score}
+    </Badge>
+  );
 }
 
 export function EstimateCallout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-2)]/60 p-3 text-sm text-[var(--muted)]">
+    <div className="rounded-[3px] border-l-4 border-[var(--warning)] bg-[var(--warning-soft)] p-4 text-sm text-[var(--muted)]">
       <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--warning)]">
         Model estimate
       </p>

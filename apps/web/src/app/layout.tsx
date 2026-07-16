@@ -1,24 +1,24 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, Sora } from "next/font/google";
+import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
 import { AppNav } from "@/components/layout/app-nav";
 import "./globals.css";
 
-const sora = Sora({
+const editorial = Cormorant_Garamond({
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
 
-const plex = IBM_Plex_Sans({
+const sourceSans = Source_Sans_3({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
   variable: "--font-body",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Opportun-AI-t",
-  description: "Autonomous career agent control center",
+  title: "OpportunityAI — Daily career brief",
+  description: "A personal career operations desk",
 };
 
 export default function RootLayout({
@@ -27,31 +27,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sora.variable} ${plex.variable}`}>
-      <body
-        className="atmosphere min-h-screen antialiased"
-        style={{ fontFamily: "var(--font-body), ui-sans-serif, system-ui" }}
-      >
-        <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-6 sm:px-6">
-          <header className="mb-8 border-b border-[var(--border)] pb-5">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p
-                  className="text-2xl font-semibold tracking-tight text-[var(--accent)] sm:text-3xl"
-                  style={{ fontFamily: "var(--font-display), sans-serif" }}
-                >
-                  Opportun-AI-t
+    <html lang="en" className={`${editorial.variable} ${sourceSans.variable}`}>
+      <body className="min-h-screen antialiased">
+        <div className="mx-auto min-h-screen max-w-[1440px] md:grid md:grid-cols-[236px_minmax(0,1fr)]">
+          <header className="editorial-rail">
+            <div className="md:sticky md:top-0 md:flex md:h-screen md:flex-col">
+              <div className="border-b border-[var(--border-strong)] px-5 py-5 md:px-7 md:pb-8 md:pt-9">
+                <p className="font-display text-[2rem] font-semibold leading-none tracking-[-0.035em] text-[var(--ink)]">
+                  Opportunity<span className="text-[var(--accent)]">AI</span>
                 </p>
-                <p className="mt-1 max-w-xl text-sm text-[var(--muted)]">
-                  Personal AI recruiter control center — review autonomous
-                  briefings, matches, and follow-ups. The dashboard never starts
-                  a run.
+                <p className="mt-2 text-[0.68rem] font-semibold uppercase tracking-[0.19em] text-[var(--muted)]">
+                  Daily career brief
+                </p>
+              </div>
+              <AppNav />
+              <div className="mt-auto hidden border-t border-[var(--border)] px-7 py-6 text-xs leading-relaxed text-[var(--muted)] md:block">
+                <p className="font-semibold uppercase tracking-[0.14em] text-[var(--ink)]">
+                  Editorial desk
+                </p>
+                <p className="mt-2">
+                  Review matched roles, follow-ups, and hiring signals. Runs are
+                  scheduled externally.
                 </p>
               </div>
             </div>
-            <AppNav />
           </header>
-          <main className="flex-1 pb-12">{children}</main>
+          <main className="min-w-0 px-4 pb-14 pt-7 sm:px-8 md:px-10 md:pb-20 md:pt-10 lg:px-14">
+            <div className="mx-auto max-w-[1080px]">{children}</div>
+          </main>
         </div>
       </body>
     </html>

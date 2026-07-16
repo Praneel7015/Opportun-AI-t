@@ -37,18 +37,14 @@ export default async function ApplicationsPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up">
-        <h1
-          className="text-xl font-semibold tracking-tight sm:text-2xl"
-          style={{ fontFamily: "var(--font-display), sans-serif" }}
-        >
-          Applications
-        </h1>
+    <div className="space-y-8">
+      <header className="animate-fade-up border-b border-[var(--border-strong)] pb-5">
+        <p className="page-kicker">Active pipeline · Working ledger</p>
+        <h1 className="page-title mt-4">Applications</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">
           Status, notes, and follow-up draft review (copy only — never auto-sent)
         </p>
-      </div>
+      </header>
 
       <div className="animate-fade-up-delay space-y-4">
         {active.length === 0 ? (
@@ -63,7 +59,7 @@ export default async function ApplicationsPage() {
             const followUps = followUpsByFp.get(app.fingerprint) ?? [];
             const fu = followUps[0];
             return (
-              <Card key={app.fingerprint}>
+              <Card key={app.fingerprint} className="rounded-[3px] border-l-4 border-l-[var(--accent)]">
                 <CardHeader>
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
@@ -92,7 +88,7 @@ export default async function ApplicationsPage() {
                   </Link>
 
                   {fu ? (
-                    <div className="rounded-lg border border-[var(--warning)]/30 bg-[var(--warning-soft)] p-4">
+                    <div className="rounded-[3px] border-l-4 border-[var(--warning)] bg-[var(--warning-soft)] p-4">
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                         <p className="text-sm font-medium text-[var(--warning)]">
                           Follow-up draft

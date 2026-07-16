@@ -29,7 +29,7 @@ export function ApplicationEditor({
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/40 p-4">
+    <div className="grid gap-4 border-y border-[var(--border)] bg-[var(--surface-2)]/50 p-4 lg:grid-cols-[minmax(180px,.45fr)_1fr]">
       <div className="space-y-2">
         <Label>Status</Label>
         <Select
@@ -57,7 +57,7 @@ export function ApplicationEditor({
           rows={4}
         />
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 lg:col-span-2">
         <Button
           disabled={pending}
           onClick={() => {
