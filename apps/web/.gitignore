@@ -2,3 +2,8 @@
 .next
 out
 node_modules
+.env
+.env.local
+.env.production
+.env.*.local
+!.env.example

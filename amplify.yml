@@ -8,6 +8,17 @@ applications:
             - cd ../..
             - npm ci
             - npm run build -w @opportun-ai-t/core
+            # Amplify console env vars often do not reach Next.js SSR compute for monorepos.
+            # Bake them into apps/web/.env.production so `next build` + next.config can pick them up.
+            - rm -f apps/web/.env.production
+            - printf 'DEMO_MODE=%s\n' "${DEMO_MODE:-0}" >> apps/web/.env.production
+            - printf 'TABLE_NAME=%s\n' "${TABLE_NAME}" >> apps/web/.env.production
+            - printf 'APP_REGION=%s\n' "${APP_REGION:-ap-south-1}" >> apps/web/.env.production
+            - printf 'SCHEDULE_TIMEZONE=%s\n' "${SCHEDULE_TIMEZONE:-Asia/Kolkata}" >> apps/web/.env.production
+            - printf 'SCHEDULE_EXPRESSION=%s\n' "${SCHEDULE_EXPRESSION:-cron(0 8 * * ? *)}" >> apps/web/.env.production
+            - printf 'ANALYSIS_CAP=%s\n' "${ANALYSIS_CAP:-10}" >> apps/web/.env.production
+            - printf 'NEXT_PUBLIC_APP_NAME=%s\n' "${NEXT_PUBLIC_APP_NAME:-Opportun-AI-t}" >> apps/web/.env.production
+            - echo "Baked env keys:"; cut -d= -f1 apps/web/.env.production
         build:
           commands:
             - npm run build -w @opportun-ai-t/web

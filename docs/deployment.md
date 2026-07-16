@@ -136,8 +136,10 @@ applications:
    | `DEMO_MODE` | `0` |
    | `APP_REGION` | `ap-south-1` (do **not** set `AWS_REGION` — Amplify rejects `AWS_*` keys) |
 
+   `amplify.yml` writes these into `apps/web/.env.production` during **preBuild**, and `next.config.ts` exposes them to the SSR bundle. After changing Amplify env vars, trigger a new deploy so they are re-baked.
+
 7. Grant the Amplify SSR / compute role **DynamoDB read/write** on the table ARN (IAM). Never commit access keys into the repo or Amplify env for long-lived secrets if a role can be used.
-8. Save and deploy; wait for the build; open the Amplify URL.
+8. Save and deploy; wait for the build; open the Amplify URL and verify `/api/health` shows `mode: "dynamodb"` and `TABLE_NAME_set: true`.
 
 ### Create Amplify app from CLI (already done)
 
