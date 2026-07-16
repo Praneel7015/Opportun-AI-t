@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { markdownToPlainText } from "@/components/shared/markdown-lite";
 import { listReports } from "@/lib/db/repositories";
 
 export const dynamic = "force-dynamic";
@@ -56,7 +57,7 @@ export default async function ReportsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="line-clamp-2 text-sm text-[var(--muted)]">
-                      {report.summaryMarkdown}
+                      {markdownToPlainText(report.summaryMarkdown)}
                     </p>
                   </CardContent>
                 </Card>

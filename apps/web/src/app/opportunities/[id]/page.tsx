@@ -15,7 +15,7 @@ import {
   getJob,
   getLatestEvaluation,
 } from "@/lib/db/repositories";
-import { ApplicationStatus } from "@opportun-ai-t/core";
+import { ApplicationStatus, normalizeJobDescription } from "@opportun-ai-t/core";
 import { safeExternalHref } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +35,9 @@ export default async function OpportunityDetailPage({
 
   const href = safeExternalHref(job.absoluteUrl);
   const saved = application?.status === ApplicationStatus.SAVED;
+  const description =
+    normalizeJobDescription(job.descriptionText ?? job.rawSnippet) ||
+    "No description stored.";
 
   return (
     <div className="space-y-8">
@@ -71,9 +74,11 @@ export default async function OpportunityDetailPage({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
-            <p className="leading-relaxed text-[var(--foreground)]/90">
-              {job.descriptionText || job.rawSnippet || "No description stored."}
-            </p>
+            <div className="space-y-4 leading-relaxed text-[var(--foreground)]/90">
+              {description.split(/\n{2,}/).map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
             <a
               href={href}
               target="_blank"

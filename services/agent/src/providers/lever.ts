@@ -2,12 +2,12 @@ import {
   computeJobFingerprint,
   JobSourceProvider,
   NormalizedJobSchema,
+  normalizeJobDescription,
   type NormalizedJob,
   type SourceConfig,
 } from "@opportun-ai-t/core";
 import {
   defaultFetcher,
-  stripHtml,
   withTimeoutRetry,
   type FetchJobsContext,
   type HttpFetcher,
@@ -81,14 +81,16 @@ export class LeverAdapter implements JobSourceAdapter {
       absoluteUrl,
     });
 
-    const descriptionHtml =
+    const description =
       raw.descriptionPlain ||
-      (raw.description ? stripHtml(raw.description) : undefined) ||
+      raw.description ||
       (raw.lists
-        ?.map((l) => `${l.text ?? ""}\n${stripHtml(l.content ?? "")}`)
+        ?.map((l) => `${l.text ?? ""}\n${l.content ?? ""}`)
         .join("\n") ?? undefined);
 
-    const descriptionText = descriptionHtml?.slice(0, 12_000);
+    const descriptionText = description
+      ? normalizeJobDescription(description).slice(0, 12_000)
+      : undefined;
 
     const departments = [
       raw.categories?.team,

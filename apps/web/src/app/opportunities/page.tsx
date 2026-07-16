@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScorePill } from "@/components/shared/meta";
+import { normalizeJobDescription } from "@opportun-ai-t/core";
 import { listOpportunities } from "@/lib/db/repositories";
 import { OpportunityFiltersSchema } from "@/lib/domain/mutations";
 
@@ -124,7 +125,9 @@ export default async function OpportunitiesPage({
               </CardHeader>
               <CardContent>
                 <p className="line-clamp-2 text-sm text-[var(--muted)]">
-                  {job.descriptionText ?? job.rawSnippet ?? ""}
+                  {normalizeJobDescription(
+                    job.descriptionText ?? job.rawSnippet,
+                  )}
                 </p>
                 {evaluation?.recommendation ? (
                   <p className="mt-2 text-xs text-[var(--muted)]">

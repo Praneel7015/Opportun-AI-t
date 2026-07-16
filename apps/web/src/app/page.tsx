@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RunStatus } from "@opportun-ai-t/core";
 import { Badge } from "@/components/ui/badge";
 import { DataModeBadge, ScorePill } from "@/components/shared/meta";
+import { MarkdownLite } from "@/components/shared/markdown-lite";
 import {
   getDataMode,
   getLatestDailyReport,
@@ -82,10 +83,13 @@ export default async function DashboardPage() {
 
       <section className="animate-fade-up-delay grid gap-8 lg:grid-cols-[minmax(0,1.65fr)_minmax(240px,.65fr)]">
         <article>
-          <p className="font-display text-xl leading-relaxed text-[var(--ink)] sm:text-2xl">
-            {briefing?.summaryMarkdown ??
-              "Your scheduled career agent has not issued a briefing yet. Once a run completes, its digest and ranked recommendations will appear on this desk."}
-          </p>
+          <MarkdownLite
+            className="font-display space-y-4 text-xl text-[var(--ink)] sm:text-2xl"
+            value={
+              briefing?.summaryMarkdown ??
+              "Your scheduled career agent has not issued a briefing yet. Once a run completes, its digest and ranked recommendations will appear on this desk."
+            }
+          />
           {briefing ? (
             <Link
               href={`/reports/${briefing.runDate}`}

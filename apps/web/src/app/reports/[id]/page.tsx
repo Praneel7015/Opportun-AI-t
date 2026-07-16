@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScorePill } from "@/components/shared/meta";
+import { MarkdownLite } from "@/components/shared/markdown-lite";
 import { getDailyReport, getWeeklyReport } from "@/lib/db/repositories";
 
 export const dynamic = "force-dynamic";
@@ -101,9 +102,10 @@ export default async function ReportDetailPage({
           <CardTitle>Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">
-            {report.summaryMarkdown}
-          </p>
+          <MarkdownLite
+            className="space-y-3 text-sm"
+            value={report.summaryMarkdown}
+          />
           {report.trendInsight ? (
             <p className="rounded-md bg-[var(--surface-2)] p-3 text-sm text-[var(--muted)]">
               {report.trendInsight}

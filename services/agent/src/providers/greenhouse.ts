@@ -2,12 +2,12 @@ import {
   computeJobFingerprint,
   JobSourceProvider,
   NormalizedJobSchema,
+  normalizeJobDescription,
   type NormalizedJob,
   type SourceConfig,
 } from "@opportun-ai-t/core";
 import {
   defaultFetcher,
-  stripHtml,
   withTimeoutRetry,
   type FetchJobsContext,
   type HttpFetcher,
@@ -84,7 +84,7 @@ export class GreenhouseAdapter implements JobSourceAdapter {
     });
 
     const descriptionText = raw.content
-      ? stripHtml(raw.content).slice(0, 12_000)
+      ? normalizeJobDescription(raw.content).slice(0, 12_000)
       : undefined;
 
     const departments =

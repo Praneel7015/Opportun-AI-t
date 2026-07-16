@@ -10,6 +10,7 @@ export * from "./fingerprint";
 export * from "./keys";
 export * from "./schemas";
 export * from "./dedupe";
+export * from "./content";
 
 import { z } from "zod";
 
