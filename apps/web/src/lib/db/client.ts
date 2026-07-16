@@ -11,10 +11,13 @@ export function getTableName(): string | undefined {
 }
 
 export function getAwsRegion(): string {
+  // Amplify Console forbids custom env keys starting with AWS_.
+  // Prefer APP_REGION there; runtime may still inject AWS_REGION.
   return (
+    process.env.APP_REGION?.trim() ||
     process.env.AWS_REGION?.trim() ||
     process.env.AWS_DEFAULT_REGION?.trim() ||
-    "us-west-2"
+    "ap-south-1"
   );
 }
 

@@ -134,7 +134,7 @@ applications:
    |-----|--------|
    | `TABLE_NAME` | `OpportunAiTStack-OpportunTableE8F45E13-1CZFD8Z85LAQ` |
    | `DEMO_MODE` | `0` |
-   | `AWS_REGION` | *If rejected as reserved, configure region via Amplify compute/IAM / `AWS_DEFAULT_REGION` per Amplify docs* |
+   | `APP_REGION` | `ap-south-1` (do **not** set `AWS_REGION` — Amplify rejects `AWS_*` keys) |
 
 7. Grant the Amplify SSR / compute role **DynamoDB read/write** on the table ARN (IAM). Never commit access keys into the repo or Amplify env for long-lived secrets if a role can be used.
 8. Save and deploy; wait for the build; open the Amplify URL.
